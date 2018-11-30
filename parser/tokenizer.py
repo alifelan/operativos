@@ -3,7 +3,7 @@ import re
 from .exceptions import LexerError
 
 tokens = ('COMMENT', 'INT', 'FLOAT', 'QUANTUMV', 'REALMEMORY', 'SWAPMEMORY',
-          'PAGESIZE', 'CREATE', 'ADDRESS', 'CREATEP', 'QUANTUM', 'FIN')
+          'PAGESIZE', 'CREATE', 'ADDRESS', 'CREATEP', 'QUANTUM', 'FIN', 'POLITICA', 'MEMORY')
 
 t_COMMENT = r'//.*'
 t_QUANTUMV = r'QuantumV'
@@ -14,6 +14,8 @@ t_CREATE = r'Create'
 t_ADDRESS = r'Address'
 t_CREATEP = r'CreateP'
 t_QUANTUM = r'Quantum'
+t_POLITICA = r'Politicas Scheduling'
+t_MEMORY = r'Memory'
 t_FIN = r'Fin'
 
 
