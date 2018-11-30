@@ -10,9 +10,5 @@ class SyntaxErr(ParserException):
     pass
 
 
-class SystemNotInitialized(Exception):
-    pass
-
-
 class EndOfSimulation(Exception):
     pass
