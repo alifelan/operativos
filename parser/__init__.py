@@ -1,2 +1,2 @@
-from .parser import parse
+from .parser import Parser
 from .exceptions import SyntaxErr, LexerError, ParserException
