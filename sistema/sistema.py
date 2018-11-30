@@ -1,3 +1,5 @@
+from time import time
+
 class System:
 
     # Creates our system with the values sent from the client
@@ -10,6 +12,7 @@ class System:
         self.pageSize = p
         self.pid = 1
         self.process = {}
+        self.startTime = time()
 
     # Creates process, s is the process size in bytes
     def createProcess(self, s):
