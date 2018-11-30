@@ -2,19 +2,7 @@
 
 import socket
 import sys
-
-unsupported = False
-end = False
-
-def process_SVC(call: str) -> str:
-    separated = call.split(' ')
-    global end
-    global unsupported
-    end = end or separated[0] == 'End'
-    unsupported = unsupported or separated[0] == 'Politicas' and (separated[2] != 'RR' or separated[4] != 'MFU')
-    if unsupported:
-        return 'Politica de scheduling o de manejo de memoria no soportada'
-    return 'Dummy message'
+from parser import Parser, EndOfSimulation, SyntaxErr, LexerError
 
 
 with socket.socket() as sock:
@@ -23,12 +11,23 @@ with socket.socket() as sock:
 
     sock.listen(1)
 
+    end = False
+
     conn, addr = sock.accept()
 
     with conn:
+
+        parser = Parser()
 
         while not end:
             data = conn.recv(1024)
             if not data:
                 continue
-            conn.sendall(process_SVC(data.decode('utf-8')).encode())
+            try:
+                conn.sendall(parser.parse(data.decode('utf-8')).encode())
+            except EndOfSimulation:
+                end = True
+            except SyntaxErr:
+                conn.sendall('Input malformado 2'.encode())
+            except LexerError:
+                conn.sendall('Input malformado 1'.encode())
