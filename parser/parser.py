@@ -15,8 +15,8 @@ class Parser:
         p[0] = p[1]
 
     def p_expression_politica_memory(self, p):
-        'expression : POLITICA STR MEMORY STR'
-        if p[2] != 'RR' or p[4] != 'MFU':
+        'expression : POLITICA C C MEMORY C C C'
+        if p[2]+p[3] != 'RR' or p[4]+p[5]+p[6] != 'MFU':
             self.correct = False
         if self.correct:
             p[0] = 'Politica de scheduling y de manejo de memoria soportadas'
@@ -25,19 +25,19 @@ class Parser:
 
     def p_expression_quantumv(self, p):
         'expression : QUANTUMV FLOAT'
-        pass
+        p[0] = f'Quantum de: {p[2]}'
 
     def p_expression_realmemory(self, p):
         'expression : REALMEMORY INT'
-        pass
+        p[0] = f'Memoria real de: {p[2]}'
 
     def p_expression_swapmemory(self, p):
         'expression : SWAPMEMORY INT'
-        pass
+        p[0] = f'SwapMemory de: {p[2]}'
 
     def p_expression_pagesize(self, p):
         'expression : PAGESIZE INT'
-        pass
+        p[0] = f'PageSize: {p[2]}'
 
     def p_expression_create(self, p):
         'expression : CREATE INT'
