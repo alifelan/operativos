@@ -1,6 +1,7 @@
 import ply.yacc as yacc
 from .tokenizer import tokens, lexer
 from .exceptions import SyntaxErr, EndOfSimulation
+from sistema import System
 
 
 class Parser:
@@ -16,7 +17,7 @@ class Parser:
 
     def p_expression_politica_memory(self, p):
         'expression : POLITICA C C MEMORY C C C'
-        if p[2]+p[3] != 'RR' or p[4]+p[5]+p[6] != 'MFU':
+        if p[2]+p[3] != 'RR' or p[5]+p[6]+p[7] != 'MFU':
             self.correct = False
         if self.correct:
             p[0] = 'Politica de scheduling y de manejo de memoria soportadas'
@@ -25,24 +26,31 @@ class Parser:
 
     def p_expression_quantumv(self, p):
         'expression : QUANTUMV FLOAT'
+        self.quantum = p[2]
         p[0] = f'Quantum de: {p[2]}'
 
     def p_expression_realmemory(self, p):
         'expression : REALMEMORY INT'
+        self.memory = p[2]
         p[0] = f'Memoria real de: {p[2]}'
 
     def p_expression_swapmemory(self, p):
         'expression : SWAPMEMORY INT'
+        self.swap = p[2]
         p[0] = f'SwapMemory de: {p[2]}'
 
     def p_expression_pagesize(self, p):
         'expression : PAGESIZE INT'
+        self.page_size = p[2]
+        self.system = System('RR', 'MFU', self.quantum, self.memory, self.swap, self.page_size)
         p[0] = f'PageSize: {p[2]}'
 
     def p_expression_create(self, p):
         'expression : CREATE INT'
         if not self.system or not self.correct:
             p[0] = 'Error en el sistema'
+        else:
+            p[0] = self.system.createProcess(p[2])
 
     def p_expression_address(self, p):
         'expression : ADDRESS INT INT'
