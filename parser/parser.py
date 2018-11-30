@@ -3,60 +3,53 @@ from .tokenizer import tokens, lexer
 from .exceptions import SyntaxErr
 
 
-def p_expression_comment(p):
-    'expression : expression COMMENT'
-    p[0] = p[1]
+class Parser:
+    def __init__(self):
+        self.tokens = tokens
+        self.parser = yacc.yacc(module=self)
 
+    def p_expression_comment(self, p):
+        'expression : expression COMMENT'
+        p[0] = p[1]
 
-def p_expression_quantumv(p):
-    'expression : QUANTUMV FLOAT'
-    pass
+    def p_expression_quantumv(self, p):
+        'expression : QUANTUMV FLOAT'
+        pass
 
+    def p_expression_realmemory(self, p):
+        'expression : REALMEMORY INT'
+        pass
 
-def p_expression_realmemory(p):
-    'expression : REALMEMORY INT'
-    pass
+    def p_expression_swapmemory(self, p):
+        'expression : SWAPMEMORY INT'
+        pass
 
+    def p_expression_pagesize(self, p):
+        'expression : PAGESIZE INT'
+        pass
 
-def p_expression_swapmemory(p):
-    'expression : SWAPMEMORY INT'
-    pass
+    def p_expression_create(self, p):
+        'expression : CREATE INT'
+        pass
 
+    def p_expression_address(self, p):
+        'expression : ADDRESS INT INT'
+        pass
 
-def p_expression_pagesize(p):
-    'expression : PAGESIZE INT'
-    pass
+    def p_expression_createp(self, p):
+        'expression : CREATEP INT INT'
+        pass
 
+    def p_expression_quantum(self, p):
+        'expression : QUANTUM'
+        pass
 
-def p_expression_create(p):
-    'expression : CREATE INT'
-    pass
+    def p_expression_fin(self, p):
+        'expression : FIN INT'
+        pass
 
+    def p_error(self, p):
+        raise SyntaxErr("Input malformado")
 
-def p_expression_address(p):
-    'expression : ADDRESS INT INT'
-    pass
-
-
-def p_expression_createp(p):
-    'expression : CREATEP INT INT'
-    pass
-
-
-def p_expression_quantum(p):
-    'expression : QUANTUM'
-    pass
-
-
-def p_expression_fin(p):
-    'expression : FIN INT'
-    pass
-
-def p_error(p):
-    raise SyntaxErr("Input malformado")
-
-parser = yacc.yacc()
-
-
-def parse(call: str) -> str:
-    return parser.parse(call, lexer=lexer.clone())
+    def parse(self, call: str) -> str:
+        return self.parser.parse(call, lexer=lexer.clone())
