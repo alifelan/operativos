@@ -1,5 +1,6 @@
 from math import ceil
 
+
 class Memory:
     def __init__(self, realMemorySize, swapMemorySize, pageSize):
         self.realMemory = RealMemory(realMemorySize, pageSize)
@@ -7,10 +8,16 @@ class Memory:
         self.pageSize = pageSize
 
     def storeProcess(self, process, processPage):
-        if self.realMemory.freePages() or self.swapMemory.freePages():
+        if self.realMemory.freePages():
             self.realMemory.setPage(process, self.swapMemory, processPage, self.pageSize)
         else:
-            raise NameError('NotEnoughMemory')
+            raise ValueError(self.realMemory.getMRUPID())
+
+    def storeAndSwapProcess(self, process1, processPage, process2):
+        if self.swapMemory.freePages():
+            self.realMemory.setAndSwapPage(process1, self.swapMemory, processPage, self.pageSize, process2)
+        else:
+            raise NameError
 
     def printMemory(self):
         self.realMemory.printMemory()
@@ -23,19 +30,14 @@ class SwapMemory:
         self.pageLen = pageLen
 
     def storePage(self, process, processPage, pageSize):
-        try:
-            i = self.pages.index(0)
-            self.pages[i] = process.getPID()
-            process.pageSwapped(process.getPageNumber(processPage), (self.pageLen + i) * pageSize)
-        except ValueError:
-            pass
+        i = self.pages.index(0)
+        self.pages[i] = str(i) + ":" + str(process.getPID()) + "." + str(processPage)
+        process.pageSwapped(process.getPageNumber(processPage), (self.pageLen + i) * pageSize)
 
     def freePages(self):
-        try:
-            self.pages.index(0)
-            return True
-        except ValueError:
-            return False
+        for page in self.pages:
+            if page == 0: return True
+        return False
 
     def printMemory(self):
         print("Swap memory")
@@ -49,16 +51,20 @@ class RealMemory:
         self.mfu = [0] * ceil(memorySize / pageSize)
 
     def setPage(self, process, swap, processPage, pageSize):
-        try:
-            i = self.pages.index(0)
-            self.pages[i] = process.getPID()
-            process.pageLoaded(processPage, i * pageSize)
-        except ValueError:
-            i = self.mfu.index(max(mfu))
-            swap.storePage(System.getProcess(pages[i]), i, pageSize)
-            self.pages[i] = process.getPID()
-            self.mfu[i] = 0
-            process.pageLoaded(processPage, i * pageSize)
+        i = self.pages.index(0)
+        self.pages[i] = str(process.getPID()) + "." + str(processPage)
+        process.pageLoaded(processPage, i * pageSize)
+
+    def setAndSwapPage(self, process1, swap, processPage, pageSize, process2):
+        i = self.mfu.index(max(self.mfu))
+        s = self.pages[i]
+        swap.storePage(process2, int(s[s.index(".")+1:]), pageSize)
+        self.pages[i] = str(process1.getPID()) + "." + str(processPage)
+        self.mfu[i] = 0
+        process1.pageLoaded(processPage, i * pageSize)
+
+    def getMRUPID(self):
+        return self.pages[self.mfu.index(max(self.mfu))]
 
     def freePages(self):
         try:
@@ -72,5 +78,8 @@ class RealMemory:
 
     def printMemory(self):
         print("Real memory")
-        for val in self.pages:
-            print(val)
+        for i, val in enumerate(self.pages):
+            if val == 0:
+                print(str(i) + ":L")
+            else:
+                print(str(i) + ":" + str(val))
