@@ -16,8 +16,8 @@ class Parser:
         p[0] = p[1]
 
     def p_expression_politica_memory(self, p):
-        'expression : POLITICA C C MEMORY C C C'
-        if p[2]+p[3] != 'RR' or p[5]+p[6]+p[7] != 'MFU':
+        'expression : POLITICA STR MEMORY STR'
+        if p[2] != 'RR' or p[4] != 'MFU':
             self.correct = False
         if self.correct:
             p[0] = 'Politica de scheduling y de manejo de memoria soportadas'

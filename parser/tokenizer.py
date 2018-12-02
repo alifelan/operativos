@@ -4,7 +4,7 @@ from .exceptions import LexerError
 
 tokens = ('COMMENT', 'INT', 'FLOAT', 'QUANTUMV', 'REALMEMORY', 'SWAPMEMORY',
           'PAGESIZE', 'CREATE', 'ADDRESS', 'CREATEP', 'QUANTUM', 'FIN',
-          'POLITICA', 'MEMORY', 'END', 'C')
+          'POLITICA', 'MEMORY', 'END', 'STR')
 
 t_COMMENT = r'//.*'
 t_QUANTUMV = r'QuantumV'
@@ -17,9 +17,10 @@ t_CREATEP = r'CreateP'
 t_QUANTUM = r'Quantum'
 t_POLITICA = r'Politicas\sscheduling'
 t_MEMORY = r'Memory'
-t_FIN = r'Fin'
-t_END = r'End'
-t_C = r'.'
+t_FIN = r'[fF][iI][nN]'
+t_END = r'[eE][nN][dD]'
+t_STR = r'[^ /]+'
+
 
 def t_FLOAT(t):
     r'[0-9]+\.[0-9]+'
