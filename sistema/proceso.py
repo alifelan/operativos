@@ -35,6 +35,9 @@ class Process:
                 pages.append(floor(val / pageSize))
         return pages
 
+    def addressInProcess(self, add):
+        return add < self.size
+
     def __eq__(self, pid):
         return self.pid == pid
 
