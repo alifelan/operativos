@@ -16,11 +16,17 @@ class Memory:
         if self.swapMemory.freePages():
             self.realMemory.setAndSwapPage(process1, self.swapMemory, processPage, self.pageSize, process2)
         else:
-            raise NameError
+            raise NameError("Not enough memory")
 
     def printMemory(self):
         self.realMemory.printMemory()
         self.swapMemory.printMemory()
+
+    def getRealString(self):
+        return self.realMemory.getString()
+
+    def getSwapString(self):
+        return self.swapMemory.getString()
 
     def getString(self):
         return [self.realMemory.getString(), self.swapMemory.getString()]

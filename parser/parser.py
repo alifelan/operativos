@@ -80,6 +80,10 @@ class Parser:
 
     def p_expression_end(self, p):
         'expression : END'
+        if not self.system or not self.correct:
+            p[0] = 'Error en el sistema'
+        else:
+            self.system.end()
         raise EndOfSimulation
 
     def p_error(self, p):

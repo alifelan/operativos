@@ -13,7 +13,7 @@ class Process:
             raise NameError
         if self.pageTable['pageNumber'][floor(vadd / pageSize)] >= memoryPageSize * pageSize:
             raise ValueError
-        return self.pageTable['pageNumber'][floor(vadd / pageSize)] + (vadd % pageSize)
+        return self.pageTable['pageNumber'][floor(vadd / pageSize)] | (vadd % pageSize)
 
     def pageLoaded(self, processPage, memoryPage):
         self.pageTable['pageLoaded'][processPage] = True
