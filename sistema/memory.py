@@ -57,7 +57,7 @@ class SwapMemory:
 
     def storePageOnNumber(self, process, processPage, pageSize, swapPage, realSize):
         self.pages[swapPage - realSize] = str(process.getPID()) + "." + str(processPage)
-        process.pageSwapped(process.getPageNumber(processPage), (self.pageLen + i) * pageSize)
+        process.pageSwapped(process.getPageNumber(processPage), (swapPage) * pageSize)
 
     def freePages(self):
         for page in self.pages:

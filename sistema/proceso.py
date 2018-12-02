@@ -13,7 +13,7 @@ class Process:
             raise NameError
         if self.pageTable['pageNumber'][floor(vadd / pageSize)] >= memoryPageSize * pageSize:
             raise ValueError
-        return self.pageTable['pageNumber'][floor(vadd / pageSize)] | (vadd % pageSize)
+        return self.pageTable['pageNumber'][floor(vadd / pageSize)] + (vadd % pageSize)
 
     def pageLoaded(self, processPage, memoryPage):
         self.pageTable['pageLoaded'][processPage] = True
@@ -30,13 +30,13 @@ class Process:
 
     def getPageList(self, pageSize):
         pages = []
-        for val in self.pageTable['pageNumber']:
-            if self.pageTable['pageLoaded']:
+        for val, condition in zip(self.pageTable['pageNumber'], self.pageTable['pageLoaded']):
+            if condition:
                 pages.append(floor(val / pageSize))
         return pages
 
     def addressInProcess(self, add):
-        return add < self.size
+        return add >= self.size
 
     def __eq__(self, pid):
         return self.pid == pid

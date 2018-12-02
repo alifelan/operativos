@@ -68,6 +68,8 @@ class Parser:
         'expression : QUANTUM'
         if not self.system or not self.correct:
             p[0] = 'Error en el sistema'
+        else:
+            p[0] = self.system.quantum()
 
     def p_expression_fin(self, p):
         'expression : FIN INT'
