@@ -1,15 +1,15 @@
 from time import time
 from collections import deque
-from memory import Memory
-from proceso import Process
-from math import ceil
+from .memory import Memory
+from .proceso import Process
+from math import ceil, floor
 
 class System:
 
     # Creates our system with the values sent from the client
     def __init__(self, s: str, mm: str, q: float, rm: int, sm: int, p: int):
         self.scheduling = s
-        self.memory = mm
+        self.memoryType = mm
         self.quantum = q
         self.pageSize = p
         self.pid = 1
@@ -25,13 +25,13 @@ class System:
         pageTable = {'pageLoaded': pageLoaded, 'pageNumber': pageNumber}
         process = Process(self.pid, s, pageTable)
         try:
-            self.memory.storeProcess(process, 0)
+            self.memory.loadProcessPage(process, 0)
             self.process.append(process)
             self.pid = self.pid + 1
             print('Process created')
         except ValueError as err:
             try:
-                self.memory.storeAndSwapProcess(process, 0, self.process[self.process.index(int(float(err.args[0])))])
+                self.memory.swapAndLoadPage(process, 0, self.process[self.process.index(int(float(err.args[0])))])
                 self.process.append(process)
                 self.pid = self.pid + 1
                 print('Process created')
@@ -45,10 +45,22 @@ class System:
         except ValueError:
             return None
 
-
-    # Returns virtual address of process pid at v
+    # Returns real address of process pid at v
     def getAddress(self, pid, v):
-        pass
+        process = self.process[self.process.index(pid)]
+        try:
+            print(process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize()))
+        except NameError:
+            try:
+                self.memory.loadProcessPage(process, floor(v / self.pageSize))
+            except ValueError as err:
+                self.memory.swapAndLoadPage(process, floor(v / self.pageSize), self.process[self.process.index(int(float(err.args[0])))])
+            print(process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize()))
+        except ValueError:
+            self.memory.swapPages(process, floor(v / self.pageSize), self.process[self.process.index(self.memory.getMRUPID())])
+            print(process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize()))
+        self.memory.accessedPage(ceil(process.getMemoryPage(floor(v / self.pageSize)) / self.pageSize))
+
 
     # Adds quantum to current process
     def quantum(self):
@@ -56,7 +68,8 @@ class System:
 
     # Kills pid
     def fin(self, pid):
-        pass
+        self.memory.clearPages(self.process[self.process.index(pid)].getPageList(self.pageSize))
+        print("Process {} ended".format(pid))
 
     # Ends simulation
     def end(self):
@@ -69,10 +82,17 @@ class System:
 if __name__ == "__main__":
     s = System('rr', 'mru', 1, 4096, 2048, 1024)
     s.createProcess(2048)
+    s.getAddress(1, 1045)
+    s.printMemory()
     s.createProcess(1024)
+    s.getAddress(2, 1023)
+    s.createProcess(2048)
+    s.printMemory()
     s.createProcess(2048)
     s.createProcess(2048)
-    s.createProcess(2048)
+    s.printMemory()
+    s.fin(1)
+    s.printMemory()
     s.createProcess(2048)
     s.createProcess(2048)
     s.printMemory()

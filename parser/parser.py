@@ -56,6 +56,8 @@ class Parser:
         'expression : ADDRESS INT INT'
         if not self.system or not self.correct:
             p[0] = 'Error en el sistema'
+        else:
+            p[0] = self.system.getAddress(p[2], p[3])
 
     def p_expression_createp(self, p):
         'expression : CREATEP INT INT'
@@ -71,6 +73,8 @@ class Parser:
         'expression : FIN INT'
         if not self.system or not self.correct:
             p[0] = 'Error en el sistema'
+        else:
+            p[0] = self.system.fin(p[2])
 
     def p_expression_end(self, p):
         'expression : END'

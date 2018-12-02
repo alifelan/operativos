@@ -1,0 +1,19 @@
+CreateP 2048
+CreateP 3072
+CreateP 5000
+Address 2 4
+Address 2 1023
+Fin 2
+Address 3 20
+Address 3 3000
+Address 3 4900
+CreateP 1024
+Address 3 10
+Fin 3
+CreateP 1024
+CreateP 1024
+Address 1 10
+Fin1
+Fin4
+Fin5
+Fin6
