@@ -21,6 +21,8 @@ class System:
         self.terminados = []
         self.timestamp = time()
         self.timer = 0
+        self.pageFaults = 0
+        self.pageVisits = 0
 
     def getCPU(self):
         if len(self.process) < 1: return ''
@@ -57,9 +59,9 @@ class System:
             except:
                 self.table.append(['create {}'.format(s), str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
                 self.pid = self.pid + 1
-                return "{} Process {} not created".format(self.getTimestamp(), self.pid)
+                return "<{}> Process {} not created".format(self.getTimestamp(), self.pid)
         self.table.append(['create {}'.format(s), str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
-        return "{} Process {} created with size {}".format(self.getTimestamp(), self.pid - 1, s)
+        return "<{}> Process {} created with size {}".format(self.getTimestamp(), self.pid - 1, s)
 
     def getProcess(self, pid):
         try:
@@ -70,18 +72,21 @@ class System:
 
     # Returns real address of process pid at v
     def getAddress(self, pid, v):
+        self.pageVisits = self.pageVisits + 1
         self.timer = self.timer + 1
         try:
             process = self.process[self.process.index(pid)]
         except:
             self.table.append(['Address {} {}'.format(pid, v), str(self.getTimestamp()), 'None', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
-            return "{} {} not executing".format(self.getTimestamp(), pid)
+            return "<{}> {} not executing".format(self.getTimestamp(), pid)
         if process.addressInProcess(v):
             self.table.append(['Address {} {}'.format(pid, v), str(self.getTimestamp()), 'Page Fault', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
-            return "{} Address {} outside of process {}".format(self.getTimestamp(), v, pid)
+            self.pageFaults = self.pageFaults + 1
+            return "<{}> Address {} outside of process {}".format(self.getTimestamp(), v, pid)
         try:
             add = process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize())
         except NameError:
+            self.pageFaults = self.pageFaults + 1
             try:
                 self.memory.loadProcessPage(process, floor(v / self.pageSize))
             except ValueError as err:
@@ -90,15 +95,16 @@ class System:
                                             self.process[self.process.index(int(float(err.args[0])))])
                 except NameError:
                     self.table.append(['Address {} {}'.format(pid, v), str(self.getTimestamp()), 'None', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
-                    return "{} Not enough memory".format(self.getTimestamp())
+                    return "<{}> Not enough memory".format(self.getTimestamp())
             add = process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize())
         except ValueError:
+            self.pageFaults = self.pageFaults + 1
             self.memory.swapPages(process, floor(v / self.pageSize),
                                   self.process[self.process.index(self.memory.getMRUPID())])
             add = process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize())
         self.memory.accessedPage(ceil(process.getMemoryPage(floor(v / self.pageSize)) / self.pageSize))
         self.table.append(['Address {} {}'.format(pid, v), str(self.getTimestamp()), str(add), self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
-        return "{} Real address: {}".format(self.getTimestamp(), add)
+        return "<{}> Real address: {}".format(self.getTimestamp(), add)
 
     # Adds quantum to current process
     def quantum(self):
@@ -112,7 +118,7 @@ class System:
         self.table.append(['Quantum', str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
         self.quantumVal = self.quantumVal + 1
         self.timer = 0
-        return "{} Quantum end".format(self.getTimestamp())
+        return "<{}> Quantum end".format(self.getTimestamp())
 
     # Kills pid
     def fin(self, pid):
@@ -122,16 +128,19 @@ class System:
             self.terminados.append(self.process[self.process.index(pid)])
             self.process.remove(pid)
         except ValueError:
-            return "{} Process {} not running".format(self.getTimestamp(), pid)
+            return "<{}> Process {} not running".format(self.getTimestamp(), pid)
             pass
         self.table.append(['Fin {}'.format(pid), str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
-        return "{} Process {} ended".format(self.getTimestamp(), pid)
+        return "<{}> Process {} ended".format(self.getTimestamp(), pid)
 
     def getMetricas(self):
         output = [['Process', 'CPU time', 'Wait time', 'Turnaround']]
         for p in self.terminados:
             output.append([str(p.getPID()), str(p.getCPUTime()), str(p.getWaitTime()), str(p.getTurnaround())])
         return output
+
+    def getRendimiento(self):
+        return [['Visitas', 'Page faults', '% Page faults'], [str(self.pageVisits), str(self.pageFaults), str(self.pageFaults / self.pageVisits * 100)]]
 
     # Ends simulation
     def end(self):
@@ -140,6 +149,7 @@ class System:
         self.table.append(['End', str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
         print(tabulate(self.table, tablefmt='fancy_grid'))
         print(tabulate(self.getMetricas(), tablefmt='fancy_grid'))
+        print(tabulate(self.getRendimiento(), tablefmt='fancy_grid'))
 
     def printMemory(self):
         self.memory.printMemory()
