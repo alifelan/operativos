@@ -19,6 +19,7 @@ class System:
         self.memory = Memory(rm, sm, self.pageSize)
         self.table = [["Comando", "Timestamp", "Dir real", "Cola listos", "CPU", "Memoria", "Swap", "Terminados"]]
         self.terminados = ''
+        self.timestamp = time()
 
     def getCPU(self):
         if len(self.process) < 1: return ''
@@ -29,7 +30,7 @@ class System:
         return ','.join(str(i.getPID()) for i in list(self.process)[1:])
 
     def getTimestamp(self):
-        return time()
+        return time() - self.timestamp
 
     # Creates process, s is the process size in bytes
     def createProcess(self, s: int):
@@ -49,6 +50,7 @@ class System:
                 self.pid = self.pid + 1
             except:
                 self.table.append(['create {}'.format(s), str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
+                self.pid = self.pid + 1
                 return "Process {} not created".format(self.pid)
         self.table.append(['create {}'.format(s), str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
         return "Process {} created with size {}".format(self.pid - 1, s)
