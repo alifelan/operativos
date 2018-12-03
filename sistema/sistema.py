@@ -20,6 +20,7 @@ class System:
         self.table = [["Comando", "Timestamp", "Dir real", "Cola listos", "CPU", "Memoria", "Swap", "Terminados"]]
         self.terminados = ''
         self.timestamp = time()
+        self.timer = 0
 
     def getCPU(self):
         if len(self.process) < 1: return ''
@@ -30,10 +31,11 @@ class System:
         return ','.join(str(i.getPID()) for i in list(self.process)[1:])
 
     def getTimestamp(self):
-        return self.quantumSize * self.quantumVal
+        return self.quantumSize * self.quantumVal + self.timer * self.quantumSize / 25
 
     # Creates process, s is the process size in bytes
     def createProcess(self, s: int):
+        self.timer = self.timer + 1
         pages = ceil(s / self.pageSize)
         pageNumber = [0] * pages
         pageLoaded = [False] * pages
@@ -64,6 +66,7 @@ class System:
 
     # Returns real address of process pid at v
     def getAddress(self, pid, v):
+        self.timer = self.timer + 1
         try:
             process = self.process[self.process.index(pid)]
         except:
@@ -95,15 +98,18 @@ class System:
 
     # Adds quantum to current process
     def quantum(self):
+        self.timer = self.timer + 1
         if len(self.process) > 0:
             x = self.process.popleft()
             self.process.append(x)
         self.table.append(['Quantum', str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
         self.quantumVal = self.quantumVal + 1
+        self.timer = 0
         return "{} Quantum end".format(self.getTimestamp())
 
     # Kills pid
     def fin(self, pid):
+        self.timer = self.timer + 1
         try:
             self.memory.clearPages(self.process[self.process.index(pid)].getPageList(self.pageSize))
             self.terminados = self.terminados + str(pid) + ","
