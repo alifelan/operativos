@@ -30,7 +30,7 @@ class System:
         return ','.join(str(i.getPID()) for i in list(self.process)[1:])
 
     def getTimestamp(self):
-        return time() - self.timestamp
+        return self.quantumSize * self.quantumVal
 
     # Creates process, s is the process size in bytes
     def createProcess(self, s: int):
@@ -51,9 +51,9 @@ class System:
             except:
                 self.table.append(['create {}'.format(s), str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
                 self.pid = self.pid + 1
-                return "Process {} not created".format(self.pid)
+                return "{} Process {} not created".format(self.getTimestamp(), self.pid)
         self.table.append(['create {}'.format(s), str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
-        return "Process {} created with size {}".format(self.pid - 1, s)
+        return "{} Process {} created with size {}".format(self.getTimestamp(), self.pid - 1, s)
 
     def getProcess(self, pid):
         try:
@@ -68,10 +68,10 @@ class System:
             process = self.process[self.process.index(pid)]
         except:
             self.table.append(['Address {} {}'.format(pid, v), str(self.getTimestamp()), 'None', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
-            return "{} not executing".format(pid)
+            return "{} {} not executing".format(self.getTimestamp(), pid)
         if process.addressInProcess(v):
             self.table.append(['Address {} {}'.format(pid, v), str(self.getTimestamp()), 'Page Fault', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
-            return "Address {} outside of process {}".format(v, pid)
+            return "{} Address {} outside of process {}".format(self.getTimestamp(), v, pid)
         try:
             add = process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize())
         except NameError:
@@ -83,7 +83,7 @@ class System:
                                             self.process[self.process.index(int(float(err.args[0])))])
                 except NameError:
                     self.table.append(['Address {} {}'.format(pid, v), str(self.getTimestamp()), 'None', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
-                    return "Not enough memory"
+                    return "{} Not enough memory".format(self.getTimestamp())
             add = process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize())
         except ValueError:
             self.memory.swapPages(process, floor(v / self.pageSize),
@@ -91,7 +91,7 @@ class System:
             add = process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize())
         self.memory.accessedPage(ceil(process.getMemoryPage(floor(v / self.pageSize)) / self.pageSize))
         self.table.append(['Address {} {}'.format(pid, v), str(self.getTimestamp()), str(add), self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
-        return "Real address: {}".format(add)
+        return "{} Real address: {}".format(self.getTimestamp(), add)
 
     # Adds quantum to current process
     def quantum(self):
@@ -99,7 +99,8 @@ class System:
             x = self.process.popleft()
             self.process.append(x)
         self.table.append(['Quantum', str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
-        return "Quantum end"
+        self.quantumVal = self.quantumVal + 1
+        return "{} Quantum end".format(self.getTimestamp())
 
     # Kills pid
     def fin(self, pid):
@@ -107,9 +108,10 @@ class System:
             self.memory.clearPages(self.process[self.process.index(pid)].getPageList(self.pageSize))
             self.terminados = self.terminados + str(pid) + ","
         except ValueError:
+            return "{} Process {} not running".format(self.getTimestamp(), pid)
             pass
         self.table.append(['Fin {}'.format(pid), str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
-        return "Process {} ended".format(pid)
+        return "{} Process {} ended".format(self.getTimestamp(), pid)
 
     # Ends simulation
     def end(self):
