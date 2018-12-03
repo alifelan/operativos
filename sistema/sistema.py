@@ -115,7 +115,7 @@ class System:
 
     # Ends simulation
     def end(self):
-        print(tabulate(self.table))
+        print(tabulate(self.table, tablefmt='fancy_grid'))
 
     def printMemory(self):
         self.memory.printMemory()
