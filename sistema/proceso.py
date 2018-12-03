@@ -7,6 +7,8 @@ class Process:
         self.pid = pid
         self.size = size
         self.pageTable = pageTable
+        self.cputime = 0
+        self.waittime = 0
 
     def getRealAddress(self, vadd, pageSize, memoryPageSize):
         if not self.pageTable['pageLoaded'][floor(vadd / pageSize)]:
@@ -37,6 +39,21 @@ class Process:
 
     def addressInProcess(self, add):
         return add >= self.size
+
+    def addCPUTime(self, time):
+        self.cputime = self.cputime + time
+
+    def getCPUTime(self):
+        return self.cputime
+
+    def getTurnaround(self):
+        return self.cputime + self.waittime
+
+    def addWaitTime(self, time):
+        self.waittime = self.waittime + time
+
+    def getWaitTime(self):
+        return self.waittime
 
     def __eq__(self, pid):
         return self.pid == pid
