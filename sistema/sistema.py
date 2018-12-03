@@ -31,7 +31,7 @@ class System:
         return ','.join(str(i.getPID()) for i in list(self.process)[1:])
 
     def getTimestamp(self):
-        return self.quantumSize * self.quantumVal + self.timer * self.quantumSize / 25
+        return f'<{self.quantumSize * self.quantumVal + self.timer * self.quantumSize / 25}>'
 
     # Creates process, s is the process size in bytes
     def createProcess(self, s: int):
