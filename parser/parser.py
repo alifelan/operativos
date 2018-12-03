@@ -7,7 +7,7 @@ from sistema import System
 class Parser:
     def __init__(self):
         self.tokens = tokens
-        self.parser = yacc.yacc(module=self)
+        self.parser = yacc.yacc(module=self, debug=False)
         self.correct = True
         self.system = None
 
