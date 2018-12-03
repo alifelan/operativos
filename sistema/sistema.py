@@ -55,11 +55,15 @@ class System:
             self.memory.loadProcessPage(process, 0)
             self.process.append(process)
             self.pid = self.pid + 1
+            self.pageVisits = self.pageVisits + 1
+            self.pageFaults = self.pageFaults + 1
         except ValueError as err:
             try:
                 self.memory.swapAndLoadPage(process, 0, self.process[self.process.index(floor(float(err.args[0])))])
                 self.process.append(process)
                 self.pid = self.pid + 1
+                self.pageVisits = self.pageVisits + 1
+                self.pageFaults = self.pageFaults + 1
             except:
                 self.table.append(['create {}'.format(s), str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
                 self.pid = self.pid + 1
@@ -100,13 +104,12 @@ class System:
                                             self.process[self.process.index(floor(float(err.args[0])))])
                 except NameError:
                     self.table.append(['Address {} {}'.format(pid, v), str(self.getTimestamp()), 'None', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
-                    self.pageFaults = self.pageFaults + 1
                     return "<{}> Not enough memory".format(self.getTimestamp())
             add = process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize())
         except ValueError:
             self.pageFaults = self.pageFaults + 1
             self.memory.swapPages(process, floor(v / self.pageSize),
-                                  self.process[self.process.index(self.memory.getMRUPID())])
+                                  self.process[self.process.index(floor(float(self.memory.getMFUPID())))])
             add = process.getRealAddress(v, self.pageSize, self.memory.getRealMemorySize())
         self.memory.accessedPage(ceil(process.getMemoryPage(floor(v / self.pageSize)) / self.pageSize))
         self.table.append(['Address {} {}'.format(pid, v), str(self.getTimestamp()), str(add), self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])

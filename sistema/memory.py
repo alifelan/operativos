@@ -1,4 +1,4 @@
-from math import ceil
+from math import ceil, floor
 
 class Memory:
     # Creates memory, having the real memory size, swap memory size and page size
@@ -78,7 +78,7 @@ class SwapMemory:
     # Swaps a process page with another process
     def storePageOnNumber(self, process, processPage, pageSize, swapPage, realSize):
         self.pages[swapPage - realSize] = str(process.getPID()) + "." + str(processPage)
-        process.pageSwapped(process.getPageNumber(processPage), (swapPage) * pageSize)
+        process.pageSwapped(processPage, (swapPage) * pageSize)
 
     # Returns true if there are free pages
     def freePages(self):
@@ -156,7 +156,7 @@ class RealMemory:
     def swapPages(self, process1, swap, processPage, pageSize, process2):
         i = self.mfu.index(max(self.mfu))
         s = self.pages[i]
-        swap.storePageOnNumber(process2, int(s[s.index(".")+1:]), pageSize, process1.getMemoryPage(), self.memoryPage)
+        swap.storePageOnNumber(process2, int(s[s.index(".")+1:]), pageSize, process1.getMemoryPage(int(s[s.index(".")+1:])), self.memorySize)
         self.pages[i] = str(process1.getPID()) + "." + str(processPage)
         self.mfu[i] = 0
         process1.pageLoaded(processPage, i * pageSize)
