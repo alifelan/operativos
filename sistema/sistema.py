@@ -31,7 +31,7 @@ class System:
         return ','.join(str(i.getPID()) for i in list(self.process)[1:])
 
     def getTimestamp(self):
-        return f'<{self.quantumSize * self.quantumVal + self.timer * self.quantumSize / 25}>'
+        return self.quantumSize * self.quantumVal + self.timer * self.quantumSize / 25
 
     # Creates process, s is the process size in bytes
     def createProcess(self, s: int):
@@ -113,6 +113,7 @@ class System:
         try:
             self.memory.clearPages(self.process[self.process.index(pid)].getPageList(self.pageSize))
             self.terminados = self.terminados + str(pid) + ","
+            self.process.remove(pid)
         except ValueError:
             return "{} Process {} not running".format(self.getTimestamp(), pid)
             pass
@@ -121,6 +122,9 @@ class System:
 
     # Ends simulation
     def end(self):
+        for p in self.process:
+            fin(p.getPID())
+        self.table.append(['End', str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.terminados[:-1]])
         print(tabulate(self.table, tablefmt='fancy_grid'))
 
     def printMemory(self):
