@@ -139,6 +139,14 @@ class System:
             output.append([str(p.getPID()), str(p.getCPUTime()), str(p.getWaitTime()), str(p.getTurnaround())])
         return output
 
+    def getPromedios(self):
+        turnaround = 0
+        espera = 0
+        for p in self.terminados:
+            turnaround = turnaround + p.getTurnaround()
+            espera = espera + p.getWaitTime()
+        return [['Turnaround promedio', 'Espera promedio'], [str(turnaround / len(self.terminados)), str(espera / len(self.terminados))]]
+
     def getRendimiento(self):
         return [['Visitas', 'Page faults', '% Page faults'], [str(self.pageVisits), str(self.pageFaults), str(self.pageFaults / self.pageVisits * 100)]]
 
@@ -149,6 +157,7 @@ class System:
         self.table.append(['End', str(self.getTimestamp()), '', self.getReady(), self.getCPU(), self.memory.getRealString(), self.memory.getSwapString(), self.getTerminados()])
         print(tabulate(self.table, tablefmt='fancy_grid'))
         print(tabulate(self.getMetricas(), tablefmt='fancy_grid'))
+        print(tabulate(self.getPromedios(), tablefmt='fancy_grid'))
         print(tabulate(self.getRendimiento(), tablefmt='fancy_grid'))
 
     def printMemory(self):
